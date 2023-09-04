@@ -29,11 +29,11 @@ export default function App() {
     pause: false,
     text: "Pause"
   })
-  // const telegramData = (window as any).Telegram.WebApp
-  // const chat_Id = telegramData.initDataUnsafe.user.id; 
+  //const telegramData = (window as any).Telegram.WebApp
+  //const chat_Id = telegramData.initDataUnsafe.user.id;
 
   const userData = {
-    Chat_Id: 253563525,//chat_Id,  // сделать аунтификацию в телеграмм
+    Chat_Id: 1370990929,  // сделать аунтификацию в телеграмм
     Name: inputTextName,
     Description: inputTextDescription,
     StartTime: nowTime
@@ -41,7 +41,7 @@ export default function App() {
 
 
   const dateData = {
-    Chat_Id: 444664,//chat_Id,
+    Chat_Id: 1370990929,
     Hours: hours,
     Minutes: minutes,
     Seconds: seconds,
@@ -70,7 +70,7 @@ export default function App() {
       setStart({ text: "stop", mode: true });
       setNowTime(now);
       userData.StartTime = now
-      axios.post("https://a96f-89-250-212-72.ngrok-free.app/Account/Post", userData).then((response) => {
+      axios.post("https://de5c-89-250-212-72.ngrok.io/Account/Post", userData).then((response) => {
       });
       setIsCounting(true);
       setPause({ mode: false, text: "Pause", pause: false });
