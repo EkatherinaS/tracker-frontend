@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import axios from 'axios'
 import * as Mui from '@mui/material';
 import * as MuiIcons from '@mui/icons-material';
 
+let dateToShow = "";
 
 export default function App() {
 
   // переменные и состояния
   const [workType, setTypeOfWork] = React.useState('');
+  const [isBlocked, setIsBlocked] = React.useState(false);
   const [project, setProject] = React.useState('');
   const [Start, setStart] = useState({ text: "start" });
   const [nowTime, setNowTime] = useState<Date>(new Date());
@@ -26,23 +28,44 @@ export default function App() {
 
   const [isCounting, setIsCounting] = useState(false)
   const telegramData = (window as any).Telegram.WebApp
-  const chat_Id = telegramData.initDataUnsafe.user.id;
+  const chat_Id = telegramData?.initDataUnsafe?.user?.id;
 
   const userData = {
     ChatId: chat_Id,  // сделать аунтификацию в телеграмм
     Name: project,
-    Description: workType,
-    StartTime: nowTime
+    Description: workType
   }
 
+  type PostTaskEntity =
+    {
+      fio: string,
+      taskName: string,
+      taskDescription: string,
+      startTime: string,
+    }
 
-  const dateData = {
-    ChatId: chat_Id,
-    Name: project,
-    Description: workType,
-    StartTime: nowTime,
-    EndTime: nowTime
-  }
+  const GetInitData = useCallback(async () => {
+    const initData = await axios.get<PostTaskEntity>(`https://mongodbforallbots.element-it.ru/Task/GetInitData/?chatId=${chat_Id}`);
+    if (!initData.data.fio) {
+      setIsBlocked(true);
+    }
+    if (!!initData.data.taskDescription) {
+      setTypeOfWork(initData.data.taskDescription)
+    }
+    if (!!initData.data.startTime) {
+      const startTime = new Date(initData.data.startTime);
+      const currentTime = new Date();
+      const TimesLeft = (currentTime.getTime() - startTime.getTime()) / 1000;
+      setNowTime(startTime);
+      setTimeLeft(TimesLeft);
+      setIsCounting(true);
+      setStart({ text: "stop" });
+    }
+  }, []);
+
+  useEffect(() => {
+    GetInitData();
+  }, [GetInitData]);
 
   useEffect(() => {
     setTypeOfWork("Электромонтажные работы");
@@ -64,8 +87,7 @@ export default function App() {
       const now = new Date()
       setStart({ text: "stop" });
       setNowTime(now);
-      userData.StartTime = now
-      axios.post("http://mongodbforallbots.element-it.ru/Task/StartButtonPost", userData).then((response) => {
+      axios.post("https://mongodbforallbots.element-it.ru/Task/StartButtonPost", userData).then((response) => {
       });
       setIsCounting(true);
     }
@@ -76,13 +98,14 @@ export default function App() {
       setProject("")
       setTypeOfWork("")
       setTimeLeft(0)
-      dateData.StartTime = nowTime
-      axios.post("http://mongodbforallbots.element-it.ru/Task/StopButtonPost", dateData).then((response) => {
+      axios.post(`https://mongodbforallbots.element-it.ru/Task/StopButtonPost?chatId=${chat_Id}`).then((response) => {
       });
     }
   };
 
-
+  if (isBlocked) {
+    return <span>Вы не указали контактные данные. Пожалуйста, вернитесь в бот и укажите ФИО</span>
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
