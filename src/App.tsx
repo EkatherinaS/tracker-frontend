@@ -70,7 +70,7 @@ export default function App() {
       setStart({ text: "stop", mode: true });
       setNowTime(now);
       userData.StartTime = now
-      axios.post("https://de5c-89-250-212-72.ngrok.io/Account/Post", userData).then((response) => {
+      axios.post("https://eb54-89-250-212-72.ngrok.io/Task/StartButtonPost", userData).then((response) => {
       });
       setIsCounting(true);
       setPause({ mode: false, text: "Pause", pause: false });
@@ -84,7 +84,7 @@ export default function App() {
       setInputTextDiscription("")
       setTimeLeft(0)
       dateData.StartTime = nowTime
-      axios.post("https://a96f-89-250-212-72.ngrok-free.app/Account/Date", dateData).then((response) => {
+      axios.post("https://eb54-89-250-212-72.ngrok.io/Task/StopButtonPost", dateData).then((response) => {
       });
     }
   };
